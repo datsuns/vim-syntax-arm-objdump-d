@@ -1,7 +1,7 @@
 " Vim syntax file
-" Language:     x86/x64 GNU Disassembler (objdump -d -Mintel)
-" Maintainer:   @shiracamus <shiracamus@gmail.com>
-" Last Change:  2013 Dec 30
+" Language:     ARM GNU Disassembler (objdump -d -Mintel)
+" Maintainer:   @datsuns <datsuns@gmail.com> (forked from @shiracamus <shiracamus@gmail.com>)
+" Last Change:  201x 
 
 " For version 5.x: Clear all syntax items
 " For version 6.0 and later: Quit when a syntax file was already loaded
@@ -17,6 +17,7 @@ set cpo&vim
 syn case ignore
 
 syn match disOffset     "[+-]"
+syn match disNumberHeader  "#"
 syn match disNumber     "[+-]\?\<0x[0-9a-f]\+\>" contains=disOffset
 syn match disNumber     "[+-]\?\<[0-9a-f]\+\>" contains=disOffset
 
@@ -25,6 +26,9 @@ syn match disRegister   "\<[re]\?[sd]il\?\>"
 syn match disRegister   "\<[re]\?[sbi]pl\?\>"
 syn match disRegister   "\<r[0-9]\+[dwb]\?\>"
 syn match disRegister   "[^\t]\<[cdefgs]s\>"hs=s+1
+syn match disRegister   "\v(fp|sp|pc|lr)"
+syn match disSigleWordRegister   "\<s[0-9]\+[dwb]\?\>"
+syn match disDoubleWordRegister   "\<d[0-9]\+[dwb]\?\>"
 
 syn match disAt         "@"
 syn match disSection    " \.[a-z][a-z_\.-]*:"he=e-1
@@ -39,7 +43,7 @@ syn match disError      "(bad)"
 syn keyword disTodo     contained TODO
 
 syn region disComment   start="/\*" end="\*/" contains=disTodo
-syn match disComment    "[#;!|].*" contains=disLabel,disTodo
+syn match disComment    "[;|].*" contains=disLabel,disTodo
 syn match disStatement  "//.*" contains=cStatement
 
 syn match disSpecial    display contained "\\\(x\x\+\|\o\{1,3}\|.\|$\)"
@@ -49,21 +53,16 @@ syn region disString    start=+'+ skip=+\\\\\|\\'\|\\$+ excludenl end=+'+ end=+$
 syn match disFormat     ": \+file format "
 syn match disTitle      "^[^ ]\+: \+file format .*$" contains=disFormat
 
-syn match disMacro      "FWORD"
-syn match disMacro      "QWORD"
-syn match disMacro      "DWORD"
-syn match disMacro      "BYTE"
-syn match disMacro      "PTR"
-
 syn match disData       ".word"
 syn match disData       ".short"
 syn match disData       ".byte"
 
 " Opecode matched disNumber
-syn match disOpecode    "\<add "
-syn match disOpecode    "\<adc "
-syn match disOpecode    "\<dec "
-syn match disOpecode    "\<fadd "
+syn match disOpecode    "\v\t(add|ldr|push|ldr|str|cmp|pop|mov|fld|fst|fmr)(h|d|s){0,1}\t"
+syn match disOpecode    "\v\tb(ne|x|eq|l){0,1}\t"
+syn match disOpecode    "\v\t(vldm|vstr|vldr|vstm)(ia){0,1}\t"
+
+syn match disSpecialOp  "!"
 
 syn case match
 
@@ -82,6 +81,7 @@ if version >= 508 || !exists("did_dis_syntax_inits")
   " Comment
   HiLink disComment     Comment
   " Constant: String, Character, Number, Boolean, Float
+  HiLink disNumberHeader      Number
   HiLink disNumber      Number
   HiLink disString      String
   " Identifier: Function
@@ -91,9 +91,10 @@ if version >= 508 || !exists("did_dis_syntax_inits")
   HiLink disLabel       Label
   " PreProc: Include, Define, Macro, PreCondit
   HiLink disData        Define
-  HiLink disMacro       Macro
   " Type: StorageClass, Structure, Typedef
   HiLink disRegister    StorageClass
+  highlight disSigleWordRegister    guifg=yellow gui=bold ctermfg=yellow
+  highlight disDoubleWordRegister   guifg=magenta gui=bold ctermfg=magenta
   HiLink disTitle       Typedef
   " Special: SpecialChar, Tag, Delimiter, SpecialComment, Debug
   HiLink disSpecial     SpecialChar
@@ -104,11 +105,16 @@ if version >= 508 || !exists("did_dis_syntax_inits")
   HiLink disError       Error
   " Todo
   HiLink disTodo        Todo
+  " Opecode
+  HiLink disOpecode     Type
+  HiLink disSpecialOp   Title
+
+
 
   delcommand HiLink
 endif
 
-let b:current_syntax = "dis"
+let b:current_syntax = "disarm"
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
