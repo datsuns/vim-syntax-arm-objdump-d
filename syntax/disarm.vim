@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     ARM GNU Disassembler (objdump -d -Mintel)
-" Maintainer:   @datsuns <datsuns@gmail.com> (forked from @shiracamus <shiracamus@gmail.com>)
+" Maintainer:   @datsuns <the.skeleton7@gmail.com> (forked from @shiracamus <shiracamus@gmail.com>)
 " Last Change:  201x 
 
 " For version 5.x: Clear all syntax items
